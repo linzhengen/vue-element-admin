@@ -19,6 +19,13 @@ const tableRouter = {
       }
     },
     {
+      path: ':id(\\d+)/edit',
+      component: () => import('@/views/shops/edit'),
+      name: 'ShopsEdit',
+      meta: { title: 'ショップ詳細設定', noCache: true, activeMenu: '/settings/shops' },
+      hidden: true
+    },
+    {
       path: 'malls',
       component: () => import('@/views/malls/index'),
       name: 'MallsIndex',

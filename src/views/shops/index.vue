@@ -51,11 +51,13 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="Actions" align="left" width="230" class-name="small-padding fixed-width">
+      <el-table-column label="Actions" align="left" width="250" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
-          <el-button type="primary" size="mini" @click="handleUpdate(row)">
-            編集
-          </el-button>
+          <router-link :to="{ name: 'ShopsEdit', params: { id: row.id }}">
+            <el-button type="primary" size="small" icon="el-icon-edit">
+              詳細設定
+            </el-button>
+          </router-link>
           <el-button v-if="row.status!='1'" size="mini" type="success" @click="handleModifyStatus(row,1)">
             有効に更新
           </el-button>
@@ -69,16 +71,16 @@
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="90px" style="width: 400px; margin-left:50px;">
+      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="95px" style="width: 400px; margin-left:50px;">
         <el-form-item label="モール" prop="mall_id">
-          <el-select v-model="temp.mall_id" class="filter-item" placeholder="選択してください">
+          <el-select v-model="temp.mall_id" class="filter-item" placeholder="選択してください" :disabled="dialogStatus==='update'">
             <el-option v-for="(mallName, mallKey) in malls" :key="mallKey" :label="mallName" :value="mallKey" />
           </el-select>
         </el-form-item>
         <el-form-item label="店舗名" prop="name">
           <el-input v-model="temp.name" />
         </el-form-item>
-        <el-form-item label="ステータス">
+        <el-form-item label="ステータス" prop="status">
           <el-select v-model="temp.status" class="filter-item" placeholder="選択してください">
             <el-option v-for="(statusName, statusKey) in statusMap" :key="statusKey" :label="statusName" :value="statusKey" />
           </el-select>
@@ -92,7 +94,7 @@
           キャンセル
         </el-button>
         <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
-          更新
+          登録
         </el-button>
       </div>
     </el-dialog>
@@ -107,7 +109,7 @@ import { MALLS } from '@/consts/mall'
 import { STATUS_MAP } from '@/consts/shop'
 
 export default {
-  name: 'ComplexTable',
+  name: 'ShopsIndex',
   components: { Pagination },
   directives: { waves },
   filters: {
@@ -144,7 +146,7 @@ export default {
         name: '',
         mall_id: undefined,
         status: undefined,
-        started_at: new Date()
+        started_at: undefined
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -155,8 +157,7 @@ export default {
       rules: {
         mall_id: [{ required: true, message: '入力してください', trigger: 'change' }],
         name: [{ required: true, message: '入力してください', trigger: 'blur' }],
-        status: [{ required: true, message: '入力してください', trigger: 'change' }],
-        started_at: [{ type: 'date', required: true, message: '入力してください', trigger: 'change' }]
+        status: [{ required: true, message: '入力してください', trigger: 'change' }]
       }
     }
   },
@@ -206,7 +207,7 @@ export default {
         name: undefined,
         mall_id: undefined,
         status: undefined,
-        started_at: new Date()
+        started_at: undefined
       }
     },
     handleCreate() {
@@ -236,7 +237,7 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
+      this.temp.started_at = new Date(this.temp.started_at)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
